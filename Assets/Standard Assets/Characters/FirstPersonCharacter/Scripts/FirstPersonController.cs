@@ -47,7 +47,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
         private void Start()
         {
             m_CharacterController = GetComponent<CharacterController>();
-            m_Camera = Camera.main;
+			m_Camera = GetComponentInChildren<Camera>();
             m_OriginalCameraPosition = m_Camera.transform.localPosition;
             m_FovKick.Setup(m_Camera);
             m_HeadBob.Setup(m_Camera, m_StepInterval);
@@ -56,6 +56,11 @@ namespace UnityStandardAssets.Characters.FirstPerson
             m_Jumping = false;
             m_AudioSource = GetComponent<AudioSource>();
 			m_MouseLook.Init(transform , m_Camera.transform);
+
+			if (!isLocalPlayer) {
+				m_Camera.enabled = false;
+				GetComponentInChildren<AudioListener> ().enabled = false;
+			}
         }
 
 
@@ -99,7 +104,9 @@ namespace UnityStandardAssets.Characters.FirstPerson
         private void FixedUpdate()
         {
             float speed;
-            GetInput(out speed);
+			if (isLocalPlayer) {
+				GetInput (out speed);
+			}
             // always move along the camera forward as it is the direction that it being aimed at
             Vector3 desiredMove = transform.forward*m_Input.y + transform.right*m_Input.x;
 
