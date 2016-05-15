@@ -103,10 +103,12 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
         private void FixedUpdate()
         {
-            float speed;
-			if (isLocalPlayer) {
-				GetInput (out speed);
+			if (!isLocalPlayer) {
+				return;
 			}
+
+            float speed;
+            GetInput(out speed);
             // always move along the camera forward as it is the direction that it being aimed at
             Vector3 desiredMove = transform.forward*m_Input.y + transform.right*m_Input.x;
 
