@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityStandardAssets.CrossPlatformInput;
 using UnityStandardAssets.Utility;
 using Random = UnityEngine.Random;
@@ -8,7 +9,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 {
     [RequireComponent(typeof (CharacterController))]
     [RequireComponent(typeof (AudioSource))]
-    public class FirstPersonController : MonoBehaviour
+    public class FirstPersonController : NetworkBehaviour
     {
         [SerializeField] private bool m_IsWalking;
         [SerializeField] private float m_WalkSpeed;
@@ -61,26 +62,29 @@ namespace UnityStandardAssets.Characters.FirstPerson
         // Update is called once per frame
         private void Update()
         {
-            RotateView();
-            // the jump state needs to read here to make sure it is not missed
-            if (!m_Jump)
-            {
-                m_Jump = CrossPlatformInputManager.GetButtonDown("Jump");
-            }
+			if (isLocalPlayer)
+			{
+	            RotateView();
+	            // the jump state needs to read here to make sure it is not missed
+	            if (!m_Jump)
+	            {
+	                m_Jump = CrossPlatformInputManager.GetButtonDown("Jump");
+	            }
 
-            if (!m_PreviouslyGrounded && m_CharacterController.isGrounded)
-            {
-                StartCoroutine(m_JumpBob.DoBobCycle());
-                PlayLandingSound();
-                m_MoveDir.y = 0f;
-                m_Jumping = false;
-            }
-            if (!m_CharacterController.isGrounded && !m_Jumping && m_PreviouslyGrounded)
-            {
-                m_MoveDir.y = 0f;
-            }
+	            if (!m_PreviouslyGrounded && m_CharacterController.isGrounded)
+	            {
+	                StartCoroutine(m_JumpBob.DoBobCycle());
+	                PlayLandingSound();
+	                m_MoveDir.y = 0f;
+	                m_Jumping = false;
+	            }
+	            if (!m_CharacterController.isGrounded && !m_Jumping && m_PreviouslyGrounded)
+	            {
+	                m_MoveDir.y = 0f;
+	            }
 
-            m_PreviouslyGrounded = m_CharacterController.isGrounded;
+	            m_PreviouslyGrounded = m_CharacterController.isGrounded;
+			}
         }
 
 
@@ -128,8 +132,10 @@ namespace UnityStandardAssets.Characters.FirstPerson
             m_CollisionFlags = m_CharacterController.Move(m_MoveDir*Time.fixedDeltaTime);
 
             ProgressStepCycle(speed);
-            UpdateCameraPosition(speed);
-
+			if (isLocalPlayer)
+			{
+				UpdateCameraPosition(speed);
+			}
             m_MouseLook.UpdateCursorLock();
         }
 
